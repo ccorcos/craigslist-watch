@@ -14,6 +14,9 @@ Subject: %s
 %s
 """ % (emailAddress, emailTo, subject, text)
 
+    print 'SENDING EMAIL:'
+    print ''
+    print ''
     print message
     server = smtplib.SMTP('smtp.gmail.com',587) #port 465 or 587
     server.ehlo()
@@ -22,4 +25,6 @@ Subject: %s
     server.login(emailAddress, emailPassword)
     server.sendmail(emailAddress, emailTo, message)
     server.close()
-    print 'sent'
+    print ''
+    print ''
+    print 'SENT'

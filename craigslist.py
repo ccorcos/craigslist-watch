@@ -17,18 +17,18 @@ emailTos = ['ccorcos@gmail.com', 'mqnavarr@gmail.com']
 base_url = 'http://losangeles.craigslist.org/search/apa?'
 
 # fill out the filters on craigslist and set the url parameters here
-filters = {
-    'hasPic': 1,
-    'maxAsk': 5500,
-    'bedrooms': 4,
-    'housing_type': 1,
-    'housing_type': 2,
-    'housing_type': 3,
-    'housing_type': 4,
-    'housing_type': 5,
-    'housing_type': 6,
-    'housing_type': 9
-}
+filters = [
+    ('hasPic', 1),
+    ('maxAsk', 5500),
+    ('bedrooms', 4),
+    ('housing_type', 1),
+    ('housing_type', 2),
+    ('housing_type', 3),
+    ('housing_type', 4),
+    ('housing_type', 5),
+    ('housing_type', 6),
+    ('housing_type', 9),
+]
 
 # search queries to look through
 queries = ['el segundo', 'redondo beach', 'hermosa beach', 'manhattan beach', 'santa monica beach', 'venice beach', 'marina del rey']
@@ -50,16 +50,29 @@ pageInc = 100
 apts = []
 for query in queries:
     for page in range(numberOfPages):
-        print 'FETCHING:', query, str(page*pageInc) + "-" + str((page+1)*pageInc)
 
-        params = filters.copy()
-        params['query'] = query
-        params['s'] = page*pageInc
+        params = list(filters)
+        params.append(('query',query))
+        params.append(('s',page*pageInc))
 
-        url = urllib.quote(base_url + urllib.urlencode(params,''))
+        plainUrl = base_url + urllib.urlencode(params,'')
+        url = urllib.quote(plainUrl)
 
         # Setup your REST GET request URL here
         getUrl = 'https://api.import.io/store/data/ae9b3481-fd34-4f31-88dc-ab2c18edde46/_query?input/webpage/url='+url+'&_user=43864eeb-fab1-4163-94ab-29ce26a543e5&_apikey='+urllib.quote(api_key,'')
+
+        print 'FETCHING:'
+        print ''
+        print 'search:', query
+        print ''
+        print 'paging:', str(page*pageInc) + "-" + str((page+1)*pageInc)
+        print ''
+        print 'craigslist url:', plainUrl
+        print ''
+        print 'import.io API url:', getUrl
+        print ''
+
+
 
         response = urllib.urlopen(getUrl).read()
         data = json.loads(response)
@@ -77,9 +90,11 @@ for query in queries:
                     apt = {'title':title, 'url':url, 'price':price, 'bedrooms':bedrooms, 'ratio':price/bedrooms}
                     apts.append(apt)
         else:
-            print ''
-            print 'FAILURE: ' + getUrl
-            print ''
+            print 'FAILURE'
+
+        print ''
+        print '-'*79
+        print ''
 
 
 totalResults = len(apts)
@@ -94,10 +109,10 @@ filteredApts = pydash.select(sortedApts, lambda x: x['ratio'] <= maxRate and x['
 uniqAps = pydash.uniq(filteredApts)
 
 # generate an email!
-text = 'Found ' +str(uniqAps) +' results from the following search queries:\n\n"' + '"\n"'.join(queries)
+text = 'Found ' +str(len(uniqAps)) +' results from the following search queries:\n\n"' + '"\n"'.join(queries)
 text = text + '"\n\nHere are the results with a price to bedroom ratio less than $' + str(maxRate) + '.\n\n\n'
 for apt in uniqAps:
-    text = text + '$' + str( apt['ratio'])  + ' / ' + str(apt['bedrooms']) + 'br - $' + str(apt['price']) + ' total : '
+    text = text + '$' + str( apt['ratio'])  + ' = $' + str(apt['price']) + ' / '+ str(apt['bedrooms']) + 'br : '
     text = text + apt['title'].encode('utf-8') + '\n' + apt['url'].encode('utf-8') + '\n\n'
 
 # print text
