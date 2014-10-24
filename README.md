@@ -46,6 +46,10 @@ echo "set nocompatible" > ~/.vimrc
 echo "export VISUAL=vim" > ~/.bashrc
 echo "export EDITOR=$VISUAL" > ~/.bashrc
 ```
+4. Dont forget to install the pip python manager!
+```
+sudo apt-get install python-pip
+```
 
 ### Cron Jobs Setup
 There's very simple [documentation](http://www.raspberrypi.org/documentation/linux/usage/cron.md) for setting up a cron job on your raspberry pi.

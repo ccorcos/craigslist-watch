@@ -66,6 +66,7 @@ for query in queries:
 
         if 'results' in data:
             results = data['results']
+            print str(len(results)) + ' results'
             for result in results:
                 # Gather the information you want from your API request
                 if all(key in result for key in ['title/_text', 'title', 'price', 'bedrooms']):
@@ -81,9 +82,7 @@ for query in queries:
             print ''
 
 
-print ''
-print 'RESULTS:'
-print ''
+totalResults = len(apts)
 
 # sort based on ratio
 sortedApts = pydash.sort_by(apts, lambda x: x['ratio'])
@@ -95,12 +94,13 @@ filteredApts = pydash.select(sortedApts, lambda x: x['ratio'] <= maxRate and x['
 uniqAps = pydash.uniq(filteredApts)
 
 # generate an email!
-text = 'gathered ' +str(numberOfPages*pageInc) +' results for each of the following queries:\n\n"' + '"\n"'.join(queries)
-text = text + '"\n\n Here are the results with a price to bedroom ratio less than $' + str(maxRate) + '.\n\n\n'
+text = 'Found ' +str(uniqAps) +' results from the following search queries:\n\n"' + '"\n"'.join(queries)
+text = text + '"\n\nHere are the results with a price to bedroom ratio less than $' + str(maxRate) + '.\n\n\n'
 for apt in uniqAps:
     text = text + '$' + str( apt['ratio'])  + ' / ' + str(apt['bedrooms']) + 'br - $' + str(apt['price']) + ' total : '
     text = text + apt['title'].encode('utf-8') + '\n' + apt['url'].encode('utf-8') + '\n\n'
-    print text
+
+# print text
 
 text = text + 'Happy Hacking ;)\n\nRobot'
 
