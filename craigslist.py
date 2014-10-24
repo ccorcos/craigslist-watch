@@ -56,7 +56,7 @@ for query in queries:
         params['query'] = query
         params['s'] = page*pageInc
 
-        url = urllib.quote(base_url + urllib.urlencode(params,'')
+        url = urllib.quote(base_url + urllib.urlencode(params,''))
 
         # Setup your REST GET request URL here
         getUrl = 'https://api.import.io/store/data/ae9b3481-fd34-4f31-88dc-ab2c18edde46/_query?input/webpage/url='+url+'&_user=43864eeb-fab1-4163-94ab-29ce26a543e5&_apikey='+urllib.quote(api_key,'')

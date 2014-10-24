@@ -24,11 +24,13 @@ api_key=""
 emailAddress = 'username@gmail.com'
 emailPassword = ''
 ```
-## CRON Job!
+
+## Setup Raspberry Pi with a Cron job
 
 I setup a cron job on my raspberry pi so that it runs every day and emails me
 the aggregated results. Here's how you do it:
 
+### Quick Raspberry Pi Setup
 1. Install Raspian on your raspberry pi.
 2. Install `avahi-daemon` so you can ssh without knowing the IP address:
 ```
@@ -37,4 +39,21 @@ sudo apt-get upgrade
 sudo apt-get install avahi-daemon
 ```
 Now you can ssh into your pi via `ssh pi@raspberrypi.local`.
-3.
+3. Make sure you install and setup vim:
+```
+sudo apt-get install vim
+echo "set nocompatible" > ~/.vimrc
+echo "export VISUAL=vim" > ~/.bashrc
+echo "export EDITOR=$VISUAL" > ~/.bashrc
+```
+
+### Cron Jobs Setup
+There's very simple [documentation](http://www.raspberrypi.org/documentation/linux/usage/cron.md) for setting up a cron job on your raspberry pi.
+
+First, find the path to `craigslist.py` (for me it is `/home/pi/programs/craigslist-watch/craigslist.py`) and then run `crontab -e` to open up the cron job list. Append the following to the end (in Vim: <ESC>Go to start editing at the end ;):
+```
+# Craigslist Script
+0 16 * * * python /home/pi/programs/craigslist-watch/craigslist.py
+```
+
+And that should be it!
