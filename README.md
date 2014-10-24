@@ -15,22 +15,17 @@ the two bikes stolen off my porch this past year!
 
 ## Getting Started
 
-1. Download and install [import.io](https://import.io/).
-2. Create an API selecting various information
-3. Fill out `craigslist.py` with your custom API and filters.
-4. Create a file called `secrets.py` with the following information:
+First, create a file called `secrets.py` with the following information:
 ```
-api_key=""
 emailAddress = 'username@gmail.com'
-emailPassword = ''
+emailPassword = 'password'
 ```
+This email address will be used for sending emails to yourself.
 
-## Setup Raspberry Pi with a Cron job
+Next, I setup a cron job on my raspberry pi so that it runs every day and emails me
+the aggregated results.
 
-I setup a cron job on my raspberry pi so that it runs every day and emails me
-the aggregated results. Here's how you do it:
-
-### Quick Raspberry Pi Setup
+Since my pi wasn't setup, here's what I did:
 1. Install Raspian on your raspberry pi.
 2. Install `avahi-daemon` so you can ssh without knowing the IP address:
 ```
@@ -51,13 +46,19 @@ echo "export EDITOR=$VISUAL" > ~/.bashrc
 sudo apt-get install python-pip
 ```
 
-### Cron Jobs Setup
-There's very simple [documentation](http://www.raspberrypi.org/documentation/linux/usage/cron.md) for setting up a cron job on your raspberry pi.
+Setting up a cron job on your pi is pretty easy. There's very simple [documentation](http://www.raspberrypi.org/documentation/linux/usage/cron.md) for
+how to do it as well.
 
 First, find the path to `craigslist.py` (for me it is `/home/pi/programs/craigslist-watch/craigslist.py`) and then run `crontab -e` to open up the cron job list. Append the following to the end (in Vim: <ESC>Go to start editing at the end ;):
 ```
 # Craigslist Script
-0 16 * * * python /home/pi/programs/craigslist-watch/craigslist.py
+0 18 * * * python /home/pi/programs/craigslist-watch/craigslist.py
 ```
 
-And that should be it!
+This script should run every day at 6pm. But wait, make sure you setup your timezone!
+```
+sudo raspi-config
+```
+Go to internationalization options > timezone.
+
+Now you're good to go!

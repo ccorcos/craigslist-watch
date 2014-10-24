@@ -33,17 +33,20 @@ filters = [
 # search queries to look through
 queries = ['el segundo', 'redondo beach', 'hermosa beach', 'manhattan beach', 'santa monica beach', 'venice beach', 'marina del rey']
 
+# make sure the locations include one of the following strings, all lowercase
+locations = ['segundo', 'redondo', 'hermosa', 'manhattan', 'santa monica', 'venice', 'marina']
+
 # number of pages to search through
 numberOfPages = 1
 
 # dollars per room
 maxRate = 1100.0
 
-# Setup the rest of your API below
-
 #############################################
 ################### FETCH ###################
 #############################################
+
+api_key="6ry0OW6wJFglXoNKrDSaxOSbeni9i9hlvQ8AeTSwy3qmfzNd2w0LdzLWSBYt5RADq+OKUF840wRzj7/HWBLMJQ=="
 
 pageInc = 100
 
@@ -82,12 +85,13 @@ for query in queries:
             print str(len(results)) + ' results'
             for result in results:
                 # Gather the information you want from your API request
-                if all(key in result for key in ['title/_text', 'title', 'price', 'bedrooms']):
+                if all(key in result for key in ['title/_text', 'title', 'price', 'bedrooms', 'location']):
                     title = result['title/_text']
                     url = result['title']
                     price = float(result['price'].replace(',','').replace('$',''))
                     bedrooms = float(result['bedrooms'].replace('br',''))
-                    apt = {'title':title, 'url':url, 'price':price, 'bedrooms':bedrooms, 'ratio':price/bedrooms}
+                    location = result['location'].lower()
+                    apt = {'title':title, 'url':url, 'price':price, 'bedrooms':bedrooms, 'ratio':price/bedrooms, 'location':location}
                     apts.append(apt)
         else:
             print 'FAILURE'
@@ -96,6 +100,12 @@ for query in queries:
         print '-'*79
         print ''
 
+def validLoaction(string):
+    found = map(lambda loc: string.find(loc) != -1, locations)
+    if 1 in found:
+        return True
+    else:
+        return False
 
 totalResults = len(apts)
 
@@ -105,8 +115,11 @@ sortedApts = pydash.sort_by(apts, lambda x: x['ratio'])
 # filter based on ratio
 filteredApts = pydash.select(sortedApts, lambda x: x['ratio'] <= maxRate and x['ratio'] > 1)
 
+# filter location strings
+locationApts = pydash.select(filteredApts, lambda x: validLoaction(x['location']))
+
 # only show the unique results!
-uniqAps = pydash.uniq(filteredApts)
+uniqAps = pydash.uniq(locationApts)
 
 # generate an email!
 text = 'Found ' +str(len(uniqAps)) +' results from the following search queries:\n\n"' + '"\n"'.join(queries)
