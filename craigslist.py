@@ -7,6 +7,8 @@ import datetime
 
 # Search For Houses / Apartments
 
+SEND_EMAIL = False
+
 emailTos = ['ccorcos@gmail.com', 'mqnavarr@gmail.com']
 
 #############################################
@@ -95,6 +97,7 @@ for query in queries:
                     apts.append(apt)
         else:
             print 'FAILURE'
+            print data
 
         print ''
         print '-'*79
@@ -132,6 +135,9 @@ for apt in uniqAps:
 
 text = text + 'Happy Hacking ;)\n\nRobot'
 
-today = datetime.date.today().strftime("%B %d, %Y")
+print text
 
-chetEmail.send(emailTos, 'Robot Craigslist Results '+today, text)
+if SEND_EMAIL:
+    today = datetime.date.today().strftime("%B %d, %Y")
+
+    chetEmail.send(emailTos, 'Robot Craigslist Results '+today, text)
