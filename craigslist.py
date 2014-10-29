@@ -7,42 +7,34 @@ import datetime
 
 # Search For Houses / Apartments
 
-SEND_EMAIL = False
+def main():
 
-emailTos = ['ccorcos@gmail.com', 'mqnavarr@gmail.com']
+    SEND_EMAIL = True
 
-#############################################
-################### SETUP ###################
-#############################################
+    emailTos = ['ccorcos@gmail.com']
 
-# fill out the filters on craigslist and set the url parameters here
-filters = [
-    ('hasPic', 1),
-    ('postedToday', 1),
-    ('bedrooms', 1)
-]
-
-# search queries to look through
-queries = ['santa monica']
-
-# make sure the locations include one of the following strings, all lowercase
-locations = ['santa monica']
-
-# number of pages to search through
-numberOfPages = 3
-
-# dollars per room
-maxRate = 1250.0
+    # fill out the filters on craigslist and set the url parameters here
+    apts = []
+    apts = apts + fetch([('hasPic', 1),('postedToday', 1),('bedrooms', 1)], ['santa monica'], ['santa monica'], 3, 2500.0)
+    apts = apts + fetch([('hasPic', 1),('postedToday', 1),('bedrooms', 2)], ['santa monica'], ['santa monica'], 3, 1200.0)
 
 
-fetch(filters, queries, locations, numberOfPages, maxRate)
+    # generate an email!
+    text = 'Found ' +str(len(apts)) +' craigslist results.'
+    for apt in apts:
+        text = text + '$' + str( apt['ratio'])  + ' = $' + str(apt['price']) + ' / '+ str(apt['bedrooms']) + 'br : '
+        text = text + apt['title'].encode('utf-8') + '\n' + apt['url'].encode('utf-8') + '\n\n'
+    text = text + 'Happy Hacking ;)\n\nRobot'
+    print text
+
+    if SEND_EMAIL:
+        today = datetime.date.today().strftime("%B %d, %Y")
+        chetEmail.send(emailTos, 'Robot Craigslist Results '+today, text)
 
 
 #############################################
 ################### FETCH ###################
 #############################################
-
-
 
 
 def fetch(filters, queries, locations, numberOfPages, maxRate):
@@ -123,22 +115,9 @@ def fetch(filters, queries, locations, numberOfPages, maxRate):
     locationApts = pydash.select(filteredApts, lambda x: validLoaction(x['location']))
 
     # only show the unique results!
-    uniqAps = pydash.uniq(locationApts)
+    uniqApts = pydash.uniq(locationApts)
 
-    # generate an email!
-    text = 'Found ' +str(len(uniqAps)) +' results from the following search queries:\n\n"' + '"\n"'.join(queries)
-    text = text + '"\n\nHere are the results with a price to bedroom ratio less than $' + str(maxRate) + '.\n\n\n'
-    for apt in uniqAps:
-        text = text + '$' + str( apt['ratio'])  + ' = $' + str(apt['price']) + ' / '+ str(apt['bedrooms']) + 'br : '
-        text = text + apt['title'].encode('utf-8') + '\n' + apt['url'].encode('utf-8') + '\n\n'
+    return uniqApts
 
-    # print text
-
-    text = text + 'Happy Hacking ;)\n\nRobot'
-
-    print text
-
-    if SEND_EMAIL:
-        today = datetime.date.today().strftime("%B %d, %Y")
-
-        chetEmail.send(emailTos, 'Robot Craigslist Results '+today, text)
+if __name__ == "__main__":
+    main()
