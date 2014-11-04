@@ -15,8 +15,7 @@ def main():
 
     # fill out the filters on craigslist and set the url parameters here
     apts = []
-    apts = apts + fetch([('hasPic', 1),('postedToday', 1),('bedrooms', 1)], ['santa monica'], ['santa monica'], 3, 2500.0)
-    apts = apts + fetch([('hasPic', 1),('postedToday', 1),('bedrooms', 2)], ['santa monica'], ['santa monica'], 3, 1200.0)
+    apts = apts + fetch([('hasPic', 1),('postedToday', 1),('bedrooms', 1)], ['santa monica'], ['santa monica'], 3, 2000.0, numBedrooms=1)
 
 
     # generate an email!
@@ -37,7 +36,7 @@ def main():
 #############################################
 
 
-def fetch(filters, queries, locations, numberOfPages, maxRate):
+def fetch(filters, queries, locations, numberOfPages, maxRate, numBedrooms=None, tries=5):
     # base url for the craigslist catogory
     base_url = 'http://losangeles.craigslist.org/search/apa?'
 
@@ -70,10 +69,14 @@ def fetch(filters, queries, locations, numberOfPages, maxRate):
             print 'import.io API url:', getUrl
             print ''
 
-
-
-            response = urllib.urlopen(getUrl).read()
-            data = json.loads(response)
+            noResponse = True
+            t = 0
+            response = ''
+            data = {}
+            while ('results' not in data) and (t < tries):
+                response = urllib.urlopen(getUrl).read()
+                data = json.loads(response)
+                t = t+1
 
             if 'results' in data:
                 results = data['results']
@@ -104,6 +107,9 @@ def fetch(filters, queries, locations, numberOfPages, maxRate):
             return False
 
     totalResults = len(apts)
+
+    if numBedrooms:
+        apts = pydash.select(apts, lambda x: x['bedrooms'] == 1.)
 
     # sort based on ratio
     sortedApts = pydash.sort_by(apts, lambda x: x['ratio'])
