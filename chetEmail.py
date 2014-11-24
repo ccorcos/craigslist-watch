@@ -4,7 +4,7 @@ import smtplib
 
 def send(emailTos, subject, text):
 
-    emailTo = ','.join(emailTos)
+    emailTo = ', '.join(emailTos)
 
     message = """\
 From: %s
